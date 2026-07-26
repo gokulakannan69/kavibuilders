@@ -121,9 +121,9 @@ export function AdminPanel() {
           console.error("Warning: Could not delete from storage", e);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting image:", error);
-      alert("Failed to delete image.");
+      alert(`Failed to delete image: ${error?.message || error?.code || "Unknown error"}`);
     }
   };
 
