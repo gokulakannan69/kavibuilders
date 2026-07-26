@@ -17,9 +17,9 @@ export function AdminPanel() {
     
     import("../../lib/supabase").then(({ supabase }) => {
       const fetchImages = async () => {
-        const { data, error } = await supabase.from('gallery').select('*').order('createdAt', { ascending: false });
+        const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
         if (data && !error) {
-          setImages(data.map(doc => ({ id: doc.id, src: doc.url, category: doc.category, storagePath: doc.storagePath })));
+          setImages(data.map(doc => ({ id: doc.id, src: doc.url, category: doc.category, storagePath: doc.storage_path })));
         }
       };
       
@@ -76,8 +76,7 @@ export function AdminPanel() {
       const { error: dbError } = await supabase.from('gallery').insert([{
         url: publicUrl,
         category,
-        storagePath,
-        createdAt: new Date().toISOString()
+        storage_path: storagePath
       }]);
       
       if (dbError) throw dbError;
