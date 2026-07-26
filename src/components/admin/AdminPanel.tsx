@@ -19,7 +19,7 @@ export function AdminPanel() {
       const fetchImages = async () => {
         const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
         if (data && !error) {
-          setImages(data.map(doc => ({ id: doc.id, src: doc.url, category: doc.category, storagePath: doc.storage_path })));
+          setImages(data.map(doc => ({ id: doc.id, src: doc.url, category: doc.category })));
         }
       };
       
@@ -75,8 +75,7 @@ export function AdminPanel() {
 
       const { error: dbError } = await supabase.from('gallery').insert([{
         url: publicUrl,
-        category,
-        storage_path: storagePath
+        category
       }]);
       
       if (dbError) throw dbError;
@@ -94,7 +93,7 @@ export function AdminPanel() {
     }
   };
 
-  const handleDelete = async (id: string, storagePath?: string) => {
+  const handleDelete = async (id: string, imageUrl?: string) => {
     if (!confirm("Are you sure you want to delete this image?")) return;
     
     try {
@@ -104,10 +103,16 @@ export function AdminPanel() {
       const { error: dbError } = await supabase.from('gallery').delete().eq('id', id);
       if (dbError) throw dbError;
       
-      // Delete from Storage if path exists
-      if (storagePath) {
-        const { error: storageError } = await supabase.storage.from('gallery').remove([storagePath]);
-        if (storageError) console.error("Warning: Could not delete from storage", storageError);
+      // Delete from Storage - extract filename from URL
+      if (imageUrl) {
+        try {
+          const fileName = imageUrl.split('/').pop();
+          if (fileName) {
+            await supabase.storage.from('gallery').remove([fileName]);
+          }
+        } catch (e) {
+          console.error("Warning: Could not delete from storage", e);
+        }
       }
     } catch (error) {
       console.error("Error deleting image:", error);
@@ -266,7 +271,7 @@ export function AdminPanel() {
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2 text-center">
                           <span className="text-white text-xs mb-2 font-medium bg-black/50 px-2 py-1 rounded">{img.category}</span>
                           <button 
-                            onClick={() => handleDelete(img.id as any, (img as any).storagePath)}
+                            onClick={() => handleDelete(img.id as any, img.src)}
                             className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-lg"
                           >
                             <Trash2 className="w-4 h-4" />
