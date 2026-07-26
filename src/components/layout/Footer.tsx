@@ -98,9 +98,9 @@ export function Footer() {
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <p>© {currentYear} Kavi Builders. All Rights Reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#privacy" className="hover:text-white transition-colors">Privacy Policy</a>
             <span>|</span>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            <a href="#terms" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>
