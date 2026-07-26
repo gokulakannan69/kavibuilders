@@ -43,15 +43,6 @@ export function Hero() {
           }}
           className="flex flex-col items-center"
         >
-          <motion.div 
-            variants={{
-              hidden: { opacity: 0, y: -20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-            }}
-            className="inline-block px-4 py-1.5 mb-6 rounded-full border border-orange-500/30 bg-orange-500/10 backdrop-blur-sm"
-          >
-            <span className="text-orange-500 font-bold tracking-widest uppercase text-xs sm:text-sm">Excellence in Construction</span>
-          </motion.div>
 
           <motion.h1 
             variants={{
@@ -70,7 +61,7 @@ export function Hero() {
             }}
             className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-md"
           >
-            {settings.heroSubtitle || "Premium Construction & Interior Solutions in Tamil Nadu. We deliver excellence from foundation to finish."}
+            {settings.heroSubtitle || "Premium Construction & Interior Design"}
           </motion.p>
           
           <motion.div 

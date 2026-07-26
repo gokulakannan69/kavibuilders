@@ -46,8 +46,10 @@ export function Gallery() {
 
     import("../../lib/supabase").then(({ supabase }) => {
       const fetchImages = async () => {
-        const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-        if (data && !error) {
+        const { data, error } = await supabase.from('gallery').select('*').order('id', { ascending: false });
+        if (error) {
+          console.error("Error fetching gallery images:", error);
+        } else if (data) {
           const imgs = data.map(doc => ({ id: doc.id as any, src: doc.url, category: doc.category }));
           if (imgs.length > 0) setGalleryImages(imgs);
         }
