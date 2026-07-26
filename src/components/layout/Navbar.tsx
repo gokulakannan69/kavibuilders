@@ -37,7 +37,7 @@ export function Navbar() {
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        isScrolled || isMobileMenuOpen ? "bg-white/40 backdrop-blur-2xl border-b border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] py-3 md:py-5" : "bg-transparent py-6 md:py-8"
+        isScrolled || isMobileMenuOpen ? "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] py-3 md:py-4 border-b border-gray-100" : "bg-transparent py-6 md:py-8"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
