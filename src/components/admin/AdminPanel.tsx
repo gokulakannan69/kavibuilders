@@ -13,22 +13,30 @@ export function AdminPanel() {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    // Instead of local storage, we'll listen to Firestore if we want real-time, 
-    // or just rely on Gallery for public view. But for Admin we also need the images.
-    // Let's import the Firestore logic:
-    import("firebase/firestore").then(({ collection, onSnapshot, query, orderBy }) => {
-      import("../../lib/firebase").then(({ db }) => {
-        const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-          const imgs: any[] = [];
-          snapshot.forEach((doc) => {
-            imgs.push({ id: doc.id, src: doc.data().url, category: doc.data().category, storagePath: doc.data().storagePath });
-          });
-          setImages(imgs);
-        });
-      });
+    let subscription: any;
+    
+    import("../../lib/supabase").then(({ supabase }) => {
+      const fetchImages = async () => {
+        const { data, error } = await supabase.from('gallery').select('*').order('createdAt', { ascending: false });
+        if (data && !error) {
+          setImages(data.map(doc => ({ id: doc.id, src: doc.url, category: doc.category, storagePath: doc.storagePath })));
+        }
+      };
+      
+      fetchImages();
+      
+      subscription = supabase.channel('admin_gallery_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
+          fetchImages();
+        })
+        .subscribe();
     });
+
     setSettings(getSiteSettings());
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
   }, []);
 
   const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,33 +61,34 @@ export function AdminPanel() {
 
     setIsUploading(true);
     try {
-      const { storage, db } = await import("../../lib/firebase");
-      const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
-      const { collection, addDoc } = await import("firebase/firestore");
+      const { supabase } = await import("../../lib/supabase");
 
-      const storagePath = `gallery/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-      const storageRef = ref(storage, storagePath);
+      const storagePath = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
       
-      console.log("Uploading to Firebase Storage...", storagePath);
-      const snapshot = await uploadBytes(storageRef, file);
-      console.log("Upload complete. Getting download URL...");
-      const url = await getDownloadURL(snapshot.ref);
-      console.log("Download URL:", url);
+      console.log("Uploading to Supabase Storage...", storagePath);
+      const { error: uploadError } = await supabase.storage.from('gallery').upload(storagePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      console.log("Upload complete. Getting public URL...");
+      const { data: { publicUrl } } = supabase.storage.from('gallery').getPublicUrl(storagePath);
 
-      await addDoc(collection(db, "gallery"), {
-        url,
+      const { error: dbError } = await supabase.from('gallery').insert([{
+        url: publicUrl,
         category,
         storagePath,
-        createdAt: Date.now()
-      });
+        createdAt: new Date().toISOString()
+      }]);
       
-      console.log("Image saved to Firestore successfully!");
+      if (dbError) throw dbError;
+      
+      console.log("Image saved to Supabase successfully!");
       alert("Image uploaded successfully! ✅");
       
     } catch (error: any) {
       console.error("Error uploading image:", error);
       const errorMessage = error?.message || error?.code || "Unknown error";
-      alert(`Failed to upload: ${errorMessage}\n\nMake sure:\n1. Firebase Storage is enabled (test mode)\n2. Firestore Database is enabled (test mode)\n3. Check browser console for details.`);
+      alert(`Failed to upload: ${errorMessage}\n\nMake sure:\n1. Supabase Storage bucket 'gallery' exists (public)\n2. Supabase Table 'gallery' exists\n3. Check browser console for details.`);
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -90,17 +99,16 @@ export function AdminPanel() {
     if (!confirm("Are you sure you want to delete this image?")) return;
     
     try {
-      const { db, storage } = await import("../../lib/firebase");
-      const { doc, deleteDoc } = await import("firebase/firestore");
+      const { supabase } = await import("../../lib/supabase");
       
-      // Delete from Firestore
-      await deleteDoc(doc(db, "gallery", id));
+      // Delete from Database
+      const { error: dbError } = await supabase.from('gallery').delete().eq('id', id);
+      if (dbError) throw dbError;
       
       // Delete from Storage if path exists
       if (storagePath) {
-        const { ref, deleteObject } = await import("firebase/storage");
-        const storageRef = ref(storage, storagePath);
-        await deleteObject(storageRef);
+        const { error: storageError } = await supabase.storage.from('gallery').remove([storagePath]);
+        if (storageError) console.error("Warning: Could not delete from storage", storageError);
       }
     } catch (error) {
       console.error("Error deleting image:", error);

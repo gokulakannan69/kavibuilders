@@ -35,7 +35,6 @@ export function Navbar() {
   ];
 
   return (
-  return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}

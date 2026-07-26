@@ -39,37 +39,33 @@ export function Gallery() {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
 
   useEffect(() => {
-    let unsubscribe: () => void;
+    let subscription: any;
     
     // Load default or local images first for immediate display
     setGalleryImages(getGalleryImages());
 
-    import("firebase/firestore").then(({ collection, onSnapshot, query, orderBy }) => {
-      import("../../lib/firebase").then(({ db }) => {
-        const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
-        unsubscribe = onSnapshot(q, (snapshot) => {
-          const imgs: GalleryImage[] = [];
-          snapshot.forEach((doc) => {
-            imgs.push({ 
-              id: doc.id as any, 
-              src: doc.data().url, 
-              category: doc.data().category 
-            });
-          });
-          
-          if (imgs.length > 0) {
-            setGalleryImages(imgs);
-          }
-        }, (error) => {
-          console.error("Error fetching gallery from Firestore:", error);
-        });
-      });
+    import("../../lib/supabase").then(({ supabase }) => {
+      const fetchImages = async () => {
+        const { data, error } = await supabase.from('gallery').select('*').order('createdAt', { ascending: false });
+        if (data && !error) {
+          const imgs = data.map(doc => ({ id: doc.id as any, src: doc.url, category: doc.category }));
+          if (imgs.length > 0) setGalleryImages(imgs);
+        }
+      };
+      
+      fetchImages();
+      
+      subscription = supabase.channel('public_gallery_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
+          fetchImages();
+        })
+        .subscribe();
     }).catch(err => {
-      console.error("Firebase not ready yet:", err);
+      console.error("Supabase not ready yet:", err);
     });
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (subscription) subscription.unsubscribe();
     };
   }, []);
 
