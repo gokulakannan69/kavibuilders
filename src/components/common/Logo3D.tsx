@@ -108,22 +108,27 @@ export function Logo3D({ isScrolled = false, lightMode = false }: Logo3DProps) {
   return (
     <motion.div
       className="flex items-center gap-2 md:gap-3 group cursor-pointer"
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0, y: [0, -3, 0] }}
+      transition={{ 
+        opacity: { duration: 0.8, ease: "easeOut" },
+        x: { duration: 0.8, ease: "easeOut" },
+        y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+      }}
+      style={{ perspective: "1000px" }}
     >
       {/* SVG Logo with animated glow */}
       <motion.div
         className="relative"
-        whileHover={{ scale: 1.08, rotate: 2 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        whileHover={{ scale: 1.15, rotateZ: 5, rotateY: 15 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
       >
         {/* Pulsing glow behind logo */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-orange-500/15 blur-xl"
+          className="absolute inset-0 rounded-full bg-orange-500/20 blur-xl"
           animate={{
-            scale: [1, 1.4, 1],
-            opacity: [0.2, 0.5, 0.2],
+            scale: [1, 1.5, 1],
+            opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
             duration: 3,
@@ -140,7 +145,9 @@ export function Logo3D({ isScrolled = false, lightMode = false }: Logo3DProps) {
           className={`text-xl md:text-2xl font-serif font-black tracking-wider transition-colors duration-300 ${
             lightMode ? "text-white" : isScrolled ? "text-gray-900" : "text-white"
           }`}
-          animate={{ opacity: [0.5, 1, 0.5] }}
+          animate={{ 
+            textShadow: ["0px 0px 0px rgba(249,115,22,0)", "0px 0px 10px rgba(249,115,22,0.5)", "0px 0px 0px rgba(249,115,22,0)"]
+          }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
           KAVI
@@ -149,21 +156,21 @@ export function Logo3D({ isScrolled = false, lightMode = false }: Logo3DProps) {
           className="flex items-center gap-1"
         >
           <motion.div
-            className="h-[2px] bg-orange-500"
-            animate={{ width: [0, 12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="h-[2px] bg-orange-500 rounded-full"
+            animate={{ width: [0, 16, 0], opacity: [0, 1, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.span 
             className="text-orange-500 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
           >
             Builders
           </motion.span>
           <motion.div
-            className="h-[2px] bg-orange-500"
-            animate={{ width: [0, 12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="h-[2px] bg-orange-500 rounded-full"
+            animate={{ width: [0, 16, 0], opacity: [0, 1, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
         </motion.div>
       </div>
