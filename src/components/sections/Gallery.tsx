@@ -9,28 +9,8 @@ export interface GalleryImage {
   category: string;
 }
 
-const defaultGalleryImages: GalleryImage[] = [
-  { id: 1, src: "/projects/1784962237953.jpg", category: "Completed Projects" },
-  { id: 2, src: "/projects/1784962237960.jpg", category: "Completed Projects" },
-  { id: 3, src: "/projects/1784962237967.jpg", category: "Completed Projects" },
-  { id: 4, src: "/projects/1784962237974.jpg", category: "Completed Projects" },
-  { id: 5, src: "/projects/1784962237980.jpg", category: "Completed Projects" },
-  { id: 6, src: "/projects/1784962237986.jpg", category: "Completed Projects" },
-  { id: 7, src: "/projects/1784962237993.jpg", category: "Completed Projects" },
-  { id: 8, src: "/projects/1784962238000.jpg", category: "Completed Projects" },
-  { id: 9, src: "/projects/1784962238006.jpg", category: "Completed Projects" },
-  { id: 10, src: "/projects/1784962238013.jpg", category: "Completed Projects" },
-  { id: 11, src: "/projects/1784962238020.jpg", category: "Completed Projects" },
-  { id: 12, src: "/projects/1784962238026.jpg", category: "Completed Projects" },
-  { id: 13, src: "/projects/1784962238033.jpg", category: "Completed Projects" },
-  { id: 14, src: "/projects/1784962238040.jpg", category: "Completed Projects" },
-  { id: 15, src: "/projects/1784962238046.jpg", category: "Completed Projects" },
-  { id: 16, src: "/projects/1784962238053.jpg", category: "Completed Projects" },
-  { id: 17, src: "/projects/1784962238059.jpg", category: "Completed Projects" },
-];
-
 export function getGalleryImages(): GalleryImage[] {
-  return defaultGalleryImages;
+  return [];
 }
 
 export function Gallery() {
@@ -40,9 +20,6 @@ export function Gallery() {
 
   useEffect(() => {
     let subscription: any;
-    
-    // Load default or local images first for immediate display
-    setGalleryImages(getGalleryImages());
 
     import("../../lib/supabase").then(({ supabase }) => {
       const fetchImages = async () => {
@@ -51,7 +28,7 @@ export function Gallery() {
           console.error("Error fetching gallery images:", error);
         } else if (data) {
           const imgs = data.map(doc => ({ id: doc.id as any, src: doc.url, category: doc.category }));
-          if (imgs.length > 0) setGalleryImages(imgs);
+          setGalleryImages(imgs);
         }
       };
       
