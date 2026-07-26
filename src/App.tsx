@@ -16,7 +16,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-200 text-gray-900 font-sans selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-gray-200 text-gray-900 font-sans selection:bg-orange-500 selection:text-white overflow-x-hidden w-full">
       <Navbar />
       {currentRoute === "#admin" ? <AdminPage /> : <HomePage />}
       <Footer />
