@@ -25,7 +25,7 @@ export function AdminPanel() {
       
       fetchImages();
       
-      subscription = supabase.channel('admin_gallery_changes')
+      subscription = supabase.channel(`admin_gallery_changes_${Date.now()}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
           fetchImages();
         })

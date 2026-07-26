@@ -55,7 +55,7 @@ export function Gallery() {
       
       fetchImages();
       
-      subscription = supabase.channel('public_gallery_changes')
+      subscription = supabase.channel(`public_gallery_changes_${Date.now()}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, () => {
           fetchImages();
         })
